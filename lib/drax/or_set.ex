@@ -29,6 +29,14 @@ defmodule Drax.OrSet do
     end
   end
 
+  def merge(a, b) do
+    Map.merge(a, b, &merge_pairs/3)
+  end
+
+  defp merge_pairs(_k, {a_adds, a_removes}, {b_adds, b_removes}) do
+    {MapSet.union(a_adds, b_adds), MapSet.union(a_removes, b_removes)}
+  end
+
   def to_list(set) do
     set
     |> Enum.reduce([], &add_element_to_list/2)
