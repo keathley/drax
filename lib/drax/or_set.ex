@@ -1,24 +1,27 @@
 defmodule Drax.OrSet do
   @moduledoc """
-  An or-set based CRDT
+  An or-set based CRDT. Adds take precedence over deletions during merges.
   """
 
   @opaque pair :: {MapSet.t, MapSet.t}
-  @type element :: term()
-  @type t :: %{optional(element()) => pair()}
+  @opaque element :: term()
+  @opaque t :: %{optional(element()) => pair()}
 
   def new, do: %{}
   def new(list), do: Enum.reduce(list, new(), fn (e, set) -> add(set, e) end)
 
+  @doc """
+  Adds a new element to the set
+  """
   def add(set, element, tag \\ Drax.tag()) do
     Map.update set, element, new_pair(tag), fn {adds, removes} ->
       {MapSet.put(adds, tag), removes}
     end
   end
 
-  def equal?(seta, setb) do
-  end
-
+  @doc """
+  Deletes an element from the set
+  """
   def delete(set, element) do
     case Map.get(set, element) do
       nil ->
@@ -29,6 +32,20 @@ defmodule Drax.OrSet do
     end
   end
 
+  @doc """
+  Checks equality between 2 sets. This equality is strict and only returns true
+  if all keys contain the same additions and deletions.
+  """
+  def equal?(seta, setb) do
+    IO.inspect([seta, setb], label: "Checking equality")
+    Map.equal?(seta, setb)
+  end
+
+
+  @doc """
+  Merges a set together. Its possible that after this operation returns
+  elements may be re-added to the set.
+  """
   def merge(a, b) do
     Map.merge(a, b, &merge_pairs/3)
   end
