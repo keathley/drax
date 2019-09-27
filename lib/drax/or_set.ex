@@ -37,7 +37,6 @@ defmodule Drax.OrSet do
   if all keys contain the same additions and deletions.
   """
   def equal?(seta, setb) do
-    IO.inspect([seta, setb], label: "Checking equality")
     Map.equal?(seta, setb)
   end
 
